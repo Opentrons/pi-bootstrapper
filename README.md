@@ -21,7 +21,7 @@ You can find them in their respective repositories, listed below:
 
 The Flask/React frontend code, talks to the labware backend.
 
-### Labware Backend (Gibus)
+### Labware Backend
 
 The "smarts" of the robot, this interfaces between the frontend and the robot control module in order to provide high-level data concerning the robot state to the frontend or motor
 control instructions to the robot controller.
