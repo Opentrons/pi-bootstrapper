@@ -17,9 +17,11 @@ You can find them in their respective repositories, listed below:
 - [pi-labware](https://github.com/Opentrons/pi-labware)
 - [pi-driver](https://github.com/Opentrons/pi-driver)
 
-### Flask Frontend
+### Frontend
 
-The Flask/React frontend code, talks to the labware backend.
+The frontend application runs a webserver which acts as the graphical user interface for the OpenTrons machine.
+
+The code is written on top of Flask/React and talks to the labware backend.
 
 ### Labware Backend
 
