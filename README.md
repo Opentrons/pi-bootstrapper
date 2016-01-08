@@ -1,5 +1,4 @@
-# OpenTrons Raspberry Pi Interface 2.0
-## Bootstrapper
+# OpenTrons Raspberry Pi Bootstrapper
 
 This repo doesn't contain any of the actual application code, but it is in charge of taking a fresh Ubuntu instance and turning it into an OpenTrons interface that can plug into a CNC controller board (currently [Smoothieboard](http://smoothieware.org/smoothieboard)) in order to issue instructions and move the OpenTrons robot around.
 
