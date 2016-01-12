@@ -1,0 +1,41 @@
+####
+# This will move all the build files and set up the directory structure on an
+# RPi.  If you're running this locally, just set pis to localhost in your
+# /etc/ansible/hosts file.
+#
+# If you don't have any builds, you'll need to run rpi_build.yml first.
+####
+
+- hosts: rpi
+
+  vars:
+    data_path: ~/data
+    config_path: ~/config
+    build_path: ~/builds
+    local_build_path: ~/builds
+
+  tasks:
+
+    - name: Check that builds exist
+      shell: "find {{ local_build_path }}/*.tar.gz"
+      register: builds_exist
+      ignore_errors: True
+
+    - name: Fail if no builds exist
+      fail: msg="No builds found; run rpi_build.yml first."
+      when: "'No such file' in builds_exist.stderr"
+
+    - name: Copy over build files
+      synchronize: |
+        src={{ local_build_path }}/
+        dest={{ build_path }}
+
+    - name: Copy over default config files
+      synchronize: |
+        src=templates/config/
+        dest={{ config_path }}
+
+    - name: Copy over default data files
+      synchronize: |
+        src=templates/data/
+        dest={{ data_path }}

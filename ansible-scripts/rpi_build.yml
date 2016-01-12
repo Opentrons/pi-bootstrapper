@@ -1,0 +1,86 @@
+##
+# This script can be run on any 64-bit ARMv7 machine. You can't just run it on
+# your own computer, though, or the Docker files won't work properly on the 
+# Raspberry Pi.
+#
+# So you can run this on the host Raspberry Pi, or you can use a beefier ARM,
+# like a Tegra K1 chip or a Beaglebone.  Then just copy the build files to 
+# the RPi.
+##
+
+- hosts: localhost
+
+  vars:
+    date: "{{ ansible_date_time.date }}"
+    repo_root: ~/repos
+    build_path: ~/builds
+    repo_tag: master # Change this to 'stable' eventually.
+    frontend_repo: pi-frontend
+    driver_repo: pi-driver
+    labware_repo: pi-labware
+    default_tag: master
+    frontend_tag: "{{ default_tag }}"
+    driver_tag: "{{ default_tag }}"
+    labware_tag: "{{ default_tag }}"
+    labware_image: "labware_{{ labware_tag }}_{{ date }}"
+    driver_image: "driver_{{ driver_tag }}_{{ date }}"
+    frontend_image: "frontend_{{ frontend_tag }}_{{ date }}"
+
+  tasks:
+    - name: Create repository root
+      file: |
+        path={{ repo_root }}
+        state=directory
+
+    - name: Create build directory
+      file: |
+        path={{ build_path }}
+        state=directory
+
+    - name: "Clone frontend repository"
+      git: |
+        repo=https://github.com/Opentrons/{{ frontend_repo }}.git
+        dest={{ repo_root }}/pi-frontend
+        version={{ frontend_tag }}
+
+    - name: "Clone driver repository"
+      git: |
+        repo=https://github.com/Opentrons/{{ driver_repo }}.git
+        dest={{ repo_root }}/pi-driver
+        version={{ driver_tag }}
+
+    - name: "Clone labware repository"
+      git: |
+        repo=https://github.com/Opentrons/{{ labware_repo }}.git
+        dest={{ repo_root }}/pi-labware
+        version={{ labware_tag }}
+
+    # Frontend build
+
+    - name: Build frontend Docker image
+      shell: "docker build -t {{ frontend_image }} {{ repo_root }}/{{ frontend_repo }}"
+
+    # frontend test needs to live here to run before we export.
+
+    - name: Export frontend image as tarball
+      shell: "docker save -o {{ build_path }}/{{ frontend_image }}.tar.gz {{ frontend_image }}"
+
+    # Driver build
+
+    - name: Build driver Docker image
+      shell: "docker build -t {{ driver_image }} {{ repo_root }}/{{ driver_repo }}"
+
+    # driver test needs to live here to run before we export.
+
+    - name: Export driver image as tarball
+      shell: "docker save -o {{ build_path }}/{{ driver_image }}.tar.gz {{ driver_image }}"
+
+    # Labware build
+
+    - name: Build labware Docker image
+      shell: "docker build -t {{ labware_image }} {{ repo_root }}/{{ labware_repo }}"
+
+    # labware test needs to live here to run before we export.
+
+    - name: Export labware image as tarball
+      shell: "docker save -o {{ build_path }}/{{ labware_image }}.tar.gz {{ labware_image }}"
