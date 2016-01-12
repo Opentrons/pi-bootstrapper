@@ -1,10 +1,15 @@
-####
+##
+# RPi Setup
+#
 # This will move all the build files and set up the directory structure on an
 # RPi.  If you're running this locally, just set pis to localhost in your
 # /etc/ansible/hosts file.
 #
+# You can connect to just one RPi, or a whole bunch of them through an
+# ethernet router. It all depends on your /etc/ansible/hosts file.
+#
 # If you don't have any builds, you'll need to run rpi_build.yml first.
-####
+##
 
 - hosts: rpi
 

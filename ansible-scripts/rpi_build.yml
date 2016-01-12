@@ -1,11 +1,19 @@
 ##
+# RPi Build
+#
+# Pulls and builds from the individual application repositories 
+# responsible for the the code running on the Raspberry Pi that ships with
+# the OpenTrons robot.
+#
 # This script can be run on any 64-bit ARMv7 machine. You can't just run it on
 # your own computer, though, or the Docker files won't work properly on the 
 # Raspberry Pi.
 #
-# So you can run this on the host Raspberry Pi, or you can use a beefier ARM,
-# like a Tegra K1 chip or a Beaglebone.  Then just copy the build files to 
-# the RPi.
+# This can run directly on the host Raspberry Pi, or you can use a beefier
+# ARM, like a Tegra K1 chip or a Beaglebone.
+#
+# Then run the rpi_setup.yml playbook to move the files and ensure all the
+# proper directories are in place.
 ##
 
 - hosts: localhost
