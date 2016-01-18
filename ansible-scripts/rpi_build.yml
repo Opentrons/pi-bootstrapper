@@ -22,6 +22,7 @@
     date: "{{ ansible_date_time.date }}"
     repo_root: ~/repos
     build_path: ~/builds
+    org_name: "opentrons"
     repo_tag: master # Change this to 'stable' eventually.
     frontend_repo: pi-frontend
     driver_repo: pi-driver
@@ -30,15 +31,19 @@
     frontend_tag: "{{ default_tag }}"
     driver_tag: "{{ default_tag }}"
     labware_tag: "{{ default_tag }}"
-    labware_image: "labware_{{ labware_tag }}_{{ date }}"
-    driver_image: "driver_{{ driver_tag }}_{{ date }}"
-    frontend_image: "frontend_{{ frontend_tag }}_{{ date }}"
+    labware_image: "labware"
+    driver_image: "driver"
+    frontend_image: "frontend"
 
   tasks:
     - name: Create repository root
       file: |
         path={{ repo_root }}
         state=directory
+
+    - name: Check if free disk percentage is too low
+      debug: msg="{{ item.size_available }}"
+      with_items: "hostvars[inventory_hostname].ansible_mounts"
 
     - name: Create build directory
       file: |
@@ -66,29 +71,31 @@
     # Frontend build
 
     - name: Build frontend Docker image
-      shell: "docker build -t {{ frontend_image }} {{ repo_root }}/{{ frontend_repo }}"
+      shell: "docker build -t {{ frontend_image }}:{{ frontend_tag }} {{ repo_root }}/{{ frontend_repo }}"
 
     # frontend test needs to live here to run before we export.
 
     - name: Export frontend image as tarball
-      shell: "docker save -o {{ build_path }}/{{ frontend_image }}.tar.gz {{ frontend_image }}"
-
-    # Driver build
+      shell: |
+        docker save -o {{ build_path }}/{{ frontend_image }}_{{ frontend_tag }}_{{ date }}.tar.gz \
+        {{ frontend_image }}:{{ frontend_tag }}
 
     - name: Build driver Docker image
-      shell: "docker build -t {{ driver_image }} {{ repo_root }}/{{ driver_repo }}"
+      shell: "docker build -t {{ driver_image }}:{{ driver_tag }} {{ repo_root }}/{{ driver_repo }}"
 
     # driver test needs to live here to run before we export.
 
     - name: Export driver image as tarball
-      shell: "docker save -o {{ build_path }}/{{ driver_image }}.tar.gz {{ driver_image }}"
-
-    # Labware build
+      shell: |
+        docker save -o {{ build_path }}/{{ driver_image }}_{{ driver_tag }}_{{ date }}.tar.gz \
+        {{ driver_image }}:{{ driver_tag }}
 
     - name: Build labware Docker image
-      shell: "docker build -t {{ labware_image }} {{ repo_root }}/{{ labware_repo }}"
+      shell: "docker build -t {{ labware_image }}:{{ labware_tag }} {{ repo_root }}/{{ labware_repo }}"
 
     # labware test needs to live here to run before we export.
 
     - name: Export labware image as tarball
-      shell: "docker save -o {{ build_path }}/{{ labware_image }}.tar.gz {{ labware_image }}"
+      shell: |
+        docker save -o {{ build_path }}/{{ labware_image }}_{{ labware_tag }}_{{ date }}.tar.gz \
+        {{ labware_image }}:{{ labware_tag }}
